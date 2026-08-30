@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet } from 'react-native';
+import { type ReactNode, useMemo, useState } from 'react';
+import { FlatList, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/chip';
@@ -15,22 +15,114 @@ import type { TrackType } from '@/types/database';
 
 const TRACK_TYPES: TrackType[] = ['학종', '교과', '논술', '정시'];
 
+const REGIONS = [
+  '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
+  '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주',
+];
+
+type TriState = 'all' | 'has' | 'none';
+
+function ChipToggle({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <Pressable onPress={onPress}>
+      <ThemedView
+        style={[
+          styles.filterChip,
+          { borderColor: theme.border },
+          active && { backgroundColor: theme.primary, borderColor: theme.primary },
+        ]}>
+        <ThemedText type="small" style={active ? { color: theme.onPrimary } : undefined}>
+          {label}
+        </ThemedText>
+      </ThemedView>
+    </Pressable>
+  );
+}
+
+function FilterSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <ThemedView style={styles.filterSection}>
+      <ThemedText type="small" themeColor="textSecondary">
+        {title}
+      </ThemedText>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ThemedView style={styles.filterRow}>{children}</ThemedView>
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+function TriStateSection({
+  title,
+  value,
+  onChange,
+  hasLabel,
+  noneLabel,
+}: {
+  title: string;
+  value: TriState;
+  onChange: (value: TriState) => void;
+  hasLabel: string;
+  noneLabel: string;
+}) {
+  return (
+    <FilterSection title={title}>
+      <ChipToggle label="전체" active={value === 'all'} onPress={() => onChange('all')} />
+      <ChipToggle label={hasLabel} active={value === 'has'} onPress={() => onChange('has')} />
+      <ChipToggle label={noneLabel} active={value === 'none'} onPress={() => onChange('none')} />
+    </FilterSection>
+  );
+}
+
+function toggleInSet<T>(set: Set<T>, value: T) {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
+}
+
 export default function AdmissionsScreen() {
   const theme = useTheme();
   const [query, setQuery] = useState('');
-  const [trackType, setTrackType] = useState<TrackType | null>(null);
-  const [selfIntroOnly, setSelfIntroOnly] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [trackTypes, setTrackTypes] = useState<Set<TrackType>>(new Set());
+  const [regions, setRegions] = useState<Set<string>>(new Set());
+  const [minGradeFilter, setMinGradeFilter] = useState<TriState>('all');
+  const [selfIntroFilter, setSelfIntroFilter] = useState<TriState>('all');
+  const [interviewFilter, setInterviewFilter] = useState<TriState>('all');
+
+  const activeFilterCount =
+    trackTypes.size +
+    regions.size +
+    (minGradeFilter !== 'all' ? 1 : 0) +
+    (selfIntroFilter !== 'all' ? 1 : 0) +
+    (interviewFilter !== 'all' ? 1 : 0);
+
+  function resetFilters() {
+    setTrackTypes(new Set());
+    setRegions(new Set());
+    setMinGradeFilter('all');
+    setSelfIntroFilter('all');
+    setInterviewFilter('all');
+  }
 
   const rows = useMemo(() => {
     const q = query.trim();
 
     return mockUniversities
+      .filter((university) => regions.size === 0 || regions.has(university.region ?? ''))
       .map((university) => ({
         university,
         tracks: mockAdmissionTracks.filter((track) => {
           if (track.university_id !== university.id) return false;
-          if (trackType && track.track_type !== trackType) return false;
-          if (selfIntroOnly && !track.requires_self_intro) return false;
+          if (trackTypes.size > 0 && !trackTypes.has(track.track_type)) return false;
+          if (minGradeFilter === 'has' && !track.min_grade_requirement) return false;
+          if (minGradeFilter === 'none' && track.min_grade_requirement) return false;
+          if (selfIntroFilter === 'has' && !track.requires_self_intro) return false;
+          if (selfIntroFilter === 'none' && track.requires_self_intro) return false;
+          if (interviewFilter === 'has' && !track.requires_interview) return false;
+          if (interviewFilter === 'none' && track.requires_interview) return false;
           return true;
         }),
       }))
@@ -42,9 +134,9 @@ export default function AdmissionsScreen() {
         );
         return matchesUniversity || matchesTrack;
       })
-      .filter(({ tracks }) => (trackType || selfIntroOnly ? tracks.length > 0 : true))
+      .filter(({ tracks }) => (activeFilterCount > 0 ? tracks.length > 0 : true))
       .sort((a, b) => a.university.name_kr.localeCompare(b.university.name_kr, 'ko'));
-  }, [query, trackType, selfIntroOnly]);
+  }, [query, trackTypes, regions, minGradeFilter, selfIntroFilter, interviewFilter, activeFilterCount]);
 
   return (
     <ThemedView style={styles.container}>
@@ -55,36 +147,74 @@ export default function AdmissionsScreen() {
             value={query}
             onChangeText={setQuery}
           />
-          <ThemedView style={styles.filterRow}>
-            {TRACK_TYPES.map((type) => (
-              <Pressable key={type} onPress={() => setTrackType(trackType === type ? null : type)}>
-                <ThemedView
-                  style={[
-                    styles.filterChip,
-                    { borderColor: theme.border },
-                    trackType === type && { backgroundColor: theme.primary, borderColor: theme.primary },
-                  ]}>
-                  <ThemedText
-                    type="small"
-                    style={trackType === type ? { color: theme.onPrimary } : undefined}>
-                    {type}
+          <Pressable onPress={() => setFiltersOpen((v) => !v)}>
+            <ThemedView style={styles.filterToggleRow}>
+              <ThemedText type="smallBold" themeColor="primary">
+                필터{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {filtersOpen ? '접기' : '펼치기'}
+              </ThemedText>
+            </ThemedView>
+          </Pressable>
+
+          {filtersOpen ? (
+            <ThemedView style={styles.filterPanel}>
+              <FilterSection title="전형">
+                {TRACK_TYPES.map((type) => (
+                  <ChipToggle
+                    key={type}
+                    label={type}
+                    active={trackTypes.has(type)}
+                    onPress={() => setTrackTypes((prev) => toggleInSet(prev, type))}
+                  />
+                ))}
+              </FilterSection>
+
+              <FilterSection title="지역">
+                {REGIONS.map((region) => (
+                  <ChipToggle
+                    key={region}
+                    label={region}
+                    active={regions.has(region)}
+                    onPress={() => setRegions((prev) => toggleInSet(prev, region))}
+                  />
+                ))}
+              </FilterSection>
+
+              <TriStateSection
+                title="수능최저 유무"
+                value={minGradeFilter}
+                onChange={setMinGradeFilter}
+                hasLabel="최저 있음"
+                noneLabel="최저 없음"
+              />
+
+              <TriStateSection
+                title="자소서 유무"
+                value={selfIntroFilter}
+                onChange={setSelfIntroFilter}
+                hasLabel="자소서 필요"
+                noneLabel="자소서 불필요"
+              />
+
+              <TriStateSection
+                title="면접 유무"
+                value={interviewFilter}
+                onChange={setInterviewFilter}
+                hasLabel="면접 있음"
+                noneLabel="면접 없음"
+              />
+
+              {activeFilterCount > 0 ? (
+                <Pressable onPress={resetFilters}>
+                  <ThemedText type="small" themeColor="danger" style={styles.resetLabel}>
+                    필터 초기화
                   </ThemedText>
-                </ThemedView>
-              </Pressable>
-            ))}
-            <Pressable onPress={() => setSelfIntroOnly((v) => !v)}>
-              <ThemedView
-                style={[
-                  styles.filterChip,
-                  { borderColor: theme.border },
-                  selfIntroOnly && { backgroundColor: theme.primary, borderColor: theme.primary },
-                ]}>
-                <ThemedText type="small" style={selfIntroOnly ? { color: theme.onPrimary } : undefined}>
-                  자소서 필요
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
-          </ThemedView>
+                </Pressable>
+              ) : null}
+            </ThemedView>
+          ) : null}
         </ThemedView>
 
         <FlatList
@@ -102,14 +232,18 @@ export default function AdmissionsScreen() {
                       {item.university.region}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView style={styles.chipRow}>
-                    {item.tracks.map((track) => (
-                      <Chip
-                        key={track.id}
-                        label={track.requires_self_intro ? `${track.track_name} · 자소서 필요` : track.track_name}
-                      />
-                    ))}
-                  </ThemedView>
+                  {item.tracks.map((track) => (
+                    <ThemedView key={track.id} style={styles.trackBlock}>
+                      <ThemedText type="small">
+                        {track.track_name} · {track.track_type}
+                      </ThemedText>
+                      <ThemedView style={styles.chipRow}>
+                        {track.min_grade_requirement ? <Chip label="최저 있음" /> : null}
+                        {track.requires_self_intro ? <Chip label="자소서 필요" /> : null}
+                        {track.requires_interview ? <Chip label="면접" /> : null}
+                      </ThemedView>
+                    </ThemedView>
+                  ))}
                 </ThemedView>
               </Pressable>
             </Link>
@@ -124,12 +258,25 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
   header: {
-    padding: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
     gap: Spacing.two,
+  },
+  filterToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.one,
+  },
+  filterPanel: {
+    gap: Spacing.two,
+    paddingBottom: Spacing.two,
+  },
+  filterSection: {
+    gap: Spacing.one,
   },
   filterRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: Spacing.one,
   },
   filterChip: {
@@ -138,18 +285,26 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
   },
+  resetLabel: {
+    textAlign: 'center',
+    paddingVertical: Spacing.one,
+  },
   listContent: {
     paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
     paddingBottom: BottomTabInset + Spacing.four,
   },
   row: {
     paddingVertical: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    gap: Spacing.one,
+    gap: Spacing.two,
   },
   rowHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  trackBlock: {
+    gap: Spacing.half,
   },
   chipRow: {
     flexDirection: 'row',

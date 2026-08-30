@@ -51,6 +51,7 @@ export default function UniversityDetailScreen() {
                 이 전형은 자기소개서 제출이 필요해요 — 자소서 탭에서 준비해보세요.
               </ThemedText>
             ) : null}
+            {track.requires_interview ? <ThemedText type="small">면접이 있어요.</ThemedText> : null}
           </Card>
         ))}
 

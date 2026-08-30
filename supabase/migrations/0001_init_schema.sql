@@ -37,12 +37,14 @@ create table admission_tracks (
   field text, -- 계열 (인문/자연/예체능 등)
   min_grade_requirement text, -- e.g. "국,수,영,탐 중 3합4"
   requires_self_intro boolean not null default false,
+  requires_interview boolean not null default false,
   application_period_start date,
   application_period_end date,
   created_at timestamptz not null default now()
 );
 create index admission_tracks_university_id_idx on admission_tracks (university_id);
 create index admission_tracks_requires_self_intro_idx on admission_tracks (requires_self_intro);
+create index admission_tracks_requires_interview_idx on admission_tracks (requires_interview);
 
 create table admission_schedule (
   id uuid primary key default gen_random_uuid(),

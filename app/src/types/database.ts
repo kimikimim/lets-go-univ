@@ -36,6 +36,7 @@ export type AdmissionTrack = {
   field: string | null;
   min_grade_requirement: string | null;
   requires_self_intro: boolean;
+  requires_interview: boolean;
   application_period_start: string | null;
   application_period_end: string | null;
   created_at: string;
