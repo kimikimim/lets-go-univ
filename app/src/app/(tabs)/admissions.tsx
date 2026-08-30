@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { UniversityLogo } from '@/components/university-logo';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useAdmissionTracks } from '@/hooks/use-admission-tracks';
 import { useTheme } from '@/hooks/use-theme';
@@ -236,24 +237,27 @@ export default function AdmissionsScreen() {
             <Link href={{ pathname: '/university/[id]', params: { id: item.university.id } }} asChild>
               <Pressable>
                 <ThemedView style={[styles.row, { borderBottomColor: theme.border }]}>
-                  <ThemedView style={styles.rowHeader}>
+                  <UniversityLogo name={item.university.name_kr} />
+                  <ThemedView style={styles.rowInfo}>
                     <ThemedText type="smallBold">{item.university.name_kr}</ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
-                      {item.university.region}
+                      {item.university.address ?? item.university.region}
                     </ThemedText>
-                  </ThemedView>
-                  {item.tracks.map((track) => (
-                    <ThemedView key={track.id} style={styles.trackBlock}>
-                      <ThemedText type="small">
-                        {track.track_name} · {track.track_type}
-                      </ThemedText>
-                      <ThemedView style={styles.chipRow}>
-                        {track.min_grade_requirement ? <Chip label="최저 있음" /> : null}
-                        {track.requires_self_intro ? <Chip label="자소서 필요" /> : null}
-                        {track.requires_interview ? <Chip label="면접" /> : null}
-                      </ThemedView>
+                    <ThemedView style={styles.tracksBlock}>
+                      {item.tracks.map((track) => (
+                        <ThemedView key={track.id} style={styles.trackBlock}>
+                          <ThemedText type="small">
+                            {track.track_name} · {track.track_type}
+                          </ThemedText>
+                          <ThemedView style={styles.chipRow}>
+                            {track.min_grade_requirement ? <Chip label="최저 있음" /> : null}
+                            {track.requires_self_intro ? <Chip label="자소서 필요" /> : null}
+                            {track.requires_interview ? <Chip label="면접" /> : null}
+                          </ThemedView>
+                        </ThemedView>
+                      ))}
                     </ThemedView>
-                  ))}
+                  </ThemedView>
                 </ThemedView>
               </Pressable>
             </Link>
@@ -308,13 +312,18 @@ const styles = StyleSheet.create({
     paddingBottom: BottomTabInset + Spacing.four,
   },
   row: {
+    flexDirection: 'row',
     paddingVertical: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
-  rowHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  rowInfo: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  tracksBlock: {
+    gap: Spacing.two,
+    marginTop: Spacing.one,
   },
   trackBlock: {
     gap: Spacing.half,

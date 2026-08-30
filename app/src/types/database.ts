@@ -25,6 +25,7 @@ export type University = {
   name_kr: string;
   region: string | null;
   type: string | null;
+  address: string | null;
   created_at: string;
 };
 
