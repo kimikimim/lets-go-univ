@@ -8,21 +8,22 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { mockAdmissionTracks } from '@/data/mock';
+import { useAdmissionTracks } from '@/hooks/use-admission-tracks';
 import { useTargetPreference } from '@/hooks/use-target-preference';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function EssayScreen() {
   const theme = useTheme();
   const { preference } = useTargetPreference();
+  const { tracks } = useAdmissionTracks();
   const [content, setContent] = useState('');
   const [copied, setCopied] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const selectedTrack = useMemo(
-    () => mockAdmissionTracks.find((t) => t.id === preference?.admission_track_id),
-    [preference],
+    () => tracks.find((t) => t.id === preference?.admission_track_id),
+    [tracks, preference],
   );
   const showSelfIntroNote = !selectedTrack?.requires_self_intro;
 

@@ -1,18 +1,42 @@
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { Card } from '@/components/card';
 import { Chip } from '@/components/chip';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { mockAdmissionTracks, mockScheduleEvents, mockUniversities } from '@/data/mock';
+import { supabase } from '@/lib/supabase';
+import type { AdmissionScheduleEvent, AdmissionTrack, University } from '@/types/database';
 
 export default function UniversityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const university = mockUniversities.find((u) => u.id === id);
-  const tracks = mockAdmissionTracks.filter((t) => t.university_id === id);
-  const events = mockScheduleEvents.filter((e) => e.university_id === id);
+  const [university, setUniversity] = useState<University | null>(null);
+  const [tracks, setTracks] = useState<AdmissionTrack[]>([]);
+  const [events, setEvents] = useState<AdmissionScheduleEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      supabase.from('universities').select('*').eq('id', id).maybeSingle(),
+      supabase.from('admission_tracks').select('*').eq('university_id', id),
+      supabase.from('admission_schedule').select('*').eq('university_id', id).order('event_date'),
+    ]).then(([universityRes, tracksRes, eventsRes]) => {
+      setUniversity(universityRes.data ?? null);
+      setTracks(tracksRes.data ?? []);
+      setEvents(eventsRes.data ?? []);
+      setLoading(false);
+    });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ActivityIndicator />
+      </ThemedView>
+    );
+  }
 
   if (!university) {
     return (
@@ -85,6 +109,10 @@ export default function UniversityDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   content: {
     padding: Spacing.three,
     gap: Spacing.two,

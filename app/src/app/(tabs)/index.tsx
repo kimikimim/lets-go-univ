@@ -7,13 +7,15 @@ import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { mockNews, mockScheduleEvents } from '@/data/mock';
+import { mockNews } from '@/data/mock';
+import { useAdmissionSchedule } from '@/hooks/use-admission-schedule';
 import { useProfile } from '@/hooks/use-profile';
 import { supabase } from '@/lib/supabase';
 import type { SearchHistoryEntry } from '@/types/database';
 
 export default function HomeScreen() {
   const { profile } = useProfile();
+  const { events: upcomingEvents } = useAdmissionSchedule();
   const [recentSearches, setRecentSearches] = useState<SearchHistoryEntry[]>([]);
 
   useEffect(() => {
@@ -28,7 +30,6 @@ export default function HomeScreen() {
   }, [profile]);
 
   const greetingName = profile?.display_name ?? '학생';
-  const upcomingEvents = [...mockScheduleEvents].sort((a, b) => a.event_date.localeCompare(b.event_date));
 
   return (
     <ThemedView style={styles.container}>

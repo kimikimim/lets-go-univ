@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import { type ReactNode, useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/chip';
@@ -9,8 +9,9 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { mockAdmissionTracks, mockUniversities } from '@/data/mock';
+import { useAdmissionTracks } from '@/hooks/use-admission-tracks';
 import { useTheme } from '@/hooks/use-theme';
+import { useUniversities } from '@/hooks/use-universities';
 import type { TrackType } from '@/types/database';
 
 const TRACK_TYPES: TrackType[] = ['학종', '교과', '논술', '정시'];
@@ -84,6 +85,9 @@ function toggleInSet<T>(set: Set<T>, value: T) {
 
 export default function AdmissionsScreen() {
   const theme = useTheme();
+  const { universities, loading: universitiesLoading } = useUniversities();
+  const { tracks: admissionTracks, loading: tracksLoading } = useAdmissionTracks();
+  const loading = universitiesLoading || tracksLoading;
   const [query, setQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [trackTypes, setTrackTypes] = useState<Set<TrackType>>(new Set());
@@ -110,11 +114,11 @@ export default function AdmissionsScreen() {
   const rows = useMemo(() => {
     const q = query.trim();
 
-    return mockUniversities
+    return universities
       .filter((university) => regions.size === 0 || regions.has(university.region ?? ''))
       .map((university) => ({
         university,
-        tracks: mockAdmissionTracks.filter((track) => {
+        tracks: admissionTracks.filter((track) => {
           if (track.university_id !== university.id) return false;
           if (trackTypes.size > 0 && !trackTypes.has(track.track_type)) return false;
           if (minGradeFilter === 'has' && !track.min_grade_requirement) return false;
@@ -136,7 +140,7 @@ export default function AdmissionsScreen() {
       })
       .filter(({ tracks }) => (activeFilterCount > 0 ? tracks.length > 0 : true))
       .sort((a, b) => a.university.name_kr.localeCompare(b.university.name_kr, 'ko'));
-  }, [query, trackTypes, regions, minGradeFilter, selfIntroFilter, interviewFilter, activeFilterCount]);
+  }, [universities, admissionTracks, query, trackTypes, regions, minGradeFilter, selfIntroFilter, interviewFilter, activeFilterCount]);
 
   return (
     <ThemedView style={styles.container}>
@@ -221,7 +225,13 @@ export default function AdmissionsScreen() {
           data={rows}
           keyExtractor={(item) => item.university.id}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={<EmptyState title="검색 결과가 없어요" description="다른 검색어나 필터를 사용해보세요." />}
+          ListEmptyComponent={
+            loading ? (
+              <ActivityIndicator style={styles.loading} />
+            ) : (
+              <EmptyState title="검색 결과가 없어요" description="다른 검색어나 필터를 사용해보세요." />
+            )
+          }
           renderItem={({ item }) => (
             <Link href={{ pathname: '/university/[id]', params: { id: item.university.id } }} asChild>
               <Pressable>
@@ -288,6 +298,9 @@ const styles = StyleSheet.create({
   resetLabel: {
     textAlign: 'center',
     paddingVertical: Spacing.one,
+  },
+  loading: {
+    marginTop: Spacing.five,
   },
   listContent: {
     paddingHorizontal: Spacing.three,

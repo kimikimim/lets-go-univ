@@ -8,10 +8,11 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { mockAdmissionTracks, mockUniversities } from '@/data/mock';
+import { useAdmissionTracks } from '@/hooks/use-admission-tracks';
 import { useProfile } from '@/hooks/use-profile';
 import { useTargetPreference } from '@/hooks/use-target-preference';
 import { useTheme } from '@/hooks/use-theme';
+import { useUniversities } from '@/hooks/use-universities';
 import { signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
@@ -20,13 +21,13 @@ export default function MyMenuScreen() {
   const router = useRouter();
   const { profile } = useProfile();
   const { preference, loading } = useTargetPreference();
+  const { universities } = useUniversities();
+  const { tracks } = useAdmissionTracks();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const currentUniversity = mockUniversities.find(
-    (u) => u.id === mockAdmissionTracks.find((t) => t.id === preference?.admission_track_id)?.university_id,
-  );
-  const currentTrack = mockAdmissionTracks.find((t) => t.id === preference?.admission_track_id);
+  const currentTrack = tracks.find((t) => t.id === preference?.admission_track_id);
+  const currentUniversity = universities.find((u) => u.id === currentTrack?.university_id);
 
   async function selectTrack(trackId: string, universityId: string) {
     if (!profile) return;
@@ -82,10 +83,10 @@ export default function MyMenuScreen() {
 
           {pickerOpen ? (
             <Card>
-              {mockUniversities.map((university) => (
+              {universities.map((university) => (
                 <ThemedView key={university.id} style={styles.pickerGroup}>
                   <ThemedText type="small">{university.name_kr}</ThemedText>
-                  {mockAdmissionTracks
+                  {tracks
                     .filter((t) => t.university_id === university.id)
                     .map((track) => (
                       <Pressable key={track.id} onPress={() => selectTrack(track.id, university.id)}>
