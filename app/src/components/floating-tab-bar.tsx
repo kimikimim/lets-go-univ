@@ -1,18 +1,21 @@
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-const TAB_ICONS: Record<string, string> = {
-  index: '🏠',
-  admissions: '📋',
-  saenggibu: '🔍',
-  essay: '✍️',
-  mymenu: '👤',
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
+const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> = {
+  index: { active: 'home', inactive: 'home-outline' },
+  admissions: { active: 'document-text', inactive: 'document-text-outline' },
+  saenggibu: { active: 'search', inactive: 'search-outline' },
+  essay: { active: 'create', inactive: 'create-outline' },
+  mymenu: { active: 'person', inactive: 'person-outline' },
 };
 
 /** Floating "liquid glass" style pill tab bar — a frosted, rounded bar that
@@ -45,7 +48,11 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                     styles.iconBubble,
                     focused && { backgroundColor: `${theme.primary}1F` },
                   ]}>
-                  <Text style={styles.icon}>{TAB_ICONS[route.name]}</Text>
+                  <Ionicons
+                    name={focused ? TAB_ICONS[route.name].active : TAB_ICONS[route.name].inactive}
+                    size={18}
+                    color={focused ? theme.primary : theme.textSecondary}
+                  />
                 </View>
                 <ThemedText
                   type="small"
@@ -105,9 +112,6 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 16,
   },
   label: {
     fontSize: 10,
