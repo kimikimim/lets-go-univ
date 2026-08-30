@@ -12,9 +12,9 @@ type IoniconName = keyof typeof Ionicons.glyphMap;
 
 const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> = {
   index: { active: 'home', inactive: 'home-outline' },
-  admissions: { active: 'document-text', inactive: 'document-text-outline' },
-  saenggibu: { active: 'search', inactive: 'search-outline' },
-  essay: { active: 'create', inactive: 'create-outline' },
+  admissions: { active: 'search', inactive: 'search-outline' },
+  saenggibu: { active: 'document-text', inactive: 'document-text-outline' },
+  essay: { active: 'document', inactive: 'document-outline' },
   mymenu: { active: 'person', inactive: 'person-outline' },
 };
 
@@ -46,17 +46,17 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                 <View
                   style={[
                     styles.iconBubble,
-                    focused && { backgroundColor: `${theme.primary}1F` },
+                    focused && { backgroundColor: `${theme.text}14` },
                   ]}>
                   <Ionicons
                     name={focused ? TAB_ICONS[route.name].active : TAB_ICONS[route.name].inactive}
                     size={26}
-                    color={focused ? theme.primary : theme.textSecondary}
+                    color={focused ? theme.text : theme.textSecondary}
                   />
                 </View>
                 <ThemedText
                   type="small"
-                  style={[styles.label, { color: focused ? theme.primary : theme.textSecondary }]}
+                  style={[styles.label, { color: focused ? theme.text : theme.textSecondary }]}
                   numberOfLines={1}>
                   {label}
                 </ThemedText>
