@@ -10,14 +10,16 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { loading } = useProfile();
-  const [iconsLoaded] = useFonts(Ionicons.font);
-  const ready = !loading && iconsLoaded;
+  // Kick off the icon font load, but don't block the whole app on it — if it
+  // fails or is slow, icons should just show a brief fallback glyph instead
+  // of the entire screen staying blank.
+  useFonts(Ionicons.font);
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+    if (!loading) SplashScreen.hideAsync();
+  }, [loading]);
 
-  if (!ready) return null;
+  if (loading) return null;
 
   return (
     <ThemeProvider value={DefaultTheme}>

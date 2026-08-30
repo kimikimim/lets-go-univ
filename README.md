@@ -39,6 +39,18 @@ cd cloudflare/pages
 npx wrangler pages dev . --port 8788
 ```
 
+### Deploying the app to Cloudflare Pages
+
+Always use `npm run deploy:web` (or `npm run export:web` to just build
+`dist/` without deploying) — **never** `npx expo export --platform web`
+followed by a plain `wrangler pages deploy dist`. Wrangler's Pages uploader
+silently drops any file whose path contains a `node_modules` segment (no
+error, no warning), and Metro's web export puts vendor assets — icon fonts
+included — under `assets/node_modules/...`. A plain deploy once shipped a
+build with the Ionicons font missing, which broke font loading badly enough
+to blank the entire app on load. `scripts/export-web.sh` renames that
+directory before deploying so this can't silently regress.
+
 ## Architecture notes
 
 - **Structured vs. RAG search**: `universities` / `admission_tracks` /
