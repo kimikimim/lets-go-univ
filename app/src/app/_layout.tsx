@@ -29,6 +29,7 @@ export default function RootLayout() {
         <Stack.Screen name="guardian/consent" options={{ headerShown: true, title: '보호자 동의' }} />
         <Stack.Screen name="webview/[...slug]" options={{ headerShown: true }} />
         <Stack.Screen name="university/[id]" options={{ headerShown: true }} />
+        <Stack.Screen name="essay" options={{ headerShown: true }} />
       </Stack>
     </ThemeProvider>
   );

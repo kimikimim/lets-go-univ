@@ -21,7 +21,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" options={{ title: '홈' }} />
       <Tabs.Screen name="admissions" options={{ title: '모집요강' }} />
       <Tabs.Screen name="saenggibu" options={{ title: '생기부' }} />
-      <Tabs.Screen name="essay" options={{ title: '자소서' }} />
       <Tabs.Screen name="mymenu" options={{ title: '마이메뉴' }} />
     </Tabs>
   );

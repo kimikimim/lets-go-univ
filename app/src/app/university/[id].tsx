@@ -1,5 +1,5 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { Card } from '@/components/card';
 import { Chip } from '@/components/chip';
@@ -47,9 +47,13 @@ export default function UniversityDetailScreen() {
               접수기간 {track.application_period_start} ~ {track.application_period_end}
             </ThemedText>
             {track.requires_self_intro ? (
-              <ThemedText type="small" themeColor="primary">
-                이 전형은 자기소개서 제출이 필요해요 — 자소서 탭에서 준비해보세요.
-              </ThemedText>
+              <Link href="/essay" asChild>
+                <Pressable>
+                  <ThemedText type="small" themeColor="primary">
+                    이 전형은 자기소개서 제출이 필요해요 — 여기서 준비해보세요.
+                  </ThemedText>
+                </Pressable>
+              </Link>
             ) : null}
             {track.requires_interview ? <ThemedText type="small">면접이 있어요.</ThemedText> : null}
           </Card>

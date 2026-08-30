@@ -1,13 +1,13 @@
+import { Stack } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { mockAdmissionTracks } from '@/data/mock';
 import { useTargetPreference } from '@/hooks/use-target-preference';
 import { useTheme } from '@/hooks/use-theme';
@@ -49,69 +49,65 @@ export default function EssayScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <ThemedText type="subtitle">자소서</ThemedText>
+      <Stack.Screen options={{ title: '자소서' }} />
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {showSelfIntroNote ? (
+          <Card>
+            <ThemedText type="small">
+              일반 4년제 대학은 2026학년도부터 자기소개서가 폐지되었어요. 이 탭은 KAIST·GIST·DGIST·UNIST와
+              편입, 그 외 자소서가 필요한 전형을 준비하는 학생을 위한 공간이에요. 모집요강 탭에서 지원할
+              전형을 먼저 선택해보세요.
+            </ThemedText>
+          </Card>
+        ) : null}
 
-          {showSelfIntroNote ? (
-            <Card>
-              <ThemedText type="small">
-                일반 4년제 대학은 2026학년도부터 자기소개서가 폐지되었어요. 이 탭은 KAIST·GIST·DGIST·UNIST와
-                편입, 그 외 자소서가 필요한 전형을 준비하는 학생을 위한 공간이에요. 모집요강 탭에서 지원할
-                전형을 먼저 선택해보세요.
-              </ThemedText>
-            </Card>
-          ) : null}
+        <TextInput
+          multiline
+          placeholder="자기소개서 내용을 작성해보세요"
+          placeholderTextColor={theme.textSecondary}
+          value={content}
+          onChangeText={setContent}
+          style={[
+            styles.editor,
+            { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border },
+          ]}
+        />
 
-          <TextInput
-            multiline
-            placeholder="자기소개서 내용을 작성해보세요"
-            placeholderTextColor={theme.textSecondary}
-            value={content}
-            onChangeText={setContent}
-            style={[
-              styles.editor,
-              { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border },
-            ]}
+        <ThemedView style={styles.actionRow}>
+          <PrimaryButton
+            label={copied ? '복사됨' : '복붙하기'}
+            variant="secondary"
+            onPress={handleCopy}
+            style={styles.actionButton}
           />
+          <PrimaryButton
+            label="AI 첨삭 받기"
+            loading={reviewing}
+            onPress={handleReview}
+            style={styles.actionButton}
+          />
+        </ThemedView>
 
-          <ThemedView style={styles.actionRow}>
-            <PrimaryButton
-              label={copied ? '복사됨' : '복붙하기'}
-              variant="secondary"
-              onPress={handleCopy}
-              style={styles.actionButton}
-            />
-            <PrimaryButton
-              label="AI 첨삭 받기"
-              loading={reviewing}
-              onPress={handleReview}
-              style={styles.actionButton}
-            />
-          </ThemedView>
-
-          {feedback ? (
-            <Card>
-              <ThemedText type="smallBold">AI 첨삭 의견</ThemedText>
-              <ThemedText type="small">{feedback}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                이 의견은 참고용 피드백이에요. 문장은 반드시 본인이 직접 다듬어주세요.
-              </ThemedText>
-            </Card>
-          ) : null}
-        </ScrollView>
-      </SafeAreaView>
+        {feedback ? (
+          <Card>
+            <ThemedText type="smallBold">AI 첨삭 의견</ThemedText>
+            <ThemedText type="small">{feedback}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              이 의견은 참고용 피드백이에요. 문장은 반드시 본인이 직접 다듬어주세요.
+            </ThemedText>
+          </Card>
+        ) : null}
+      </ScrollView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1 },
   content: {
     padding: Spacing.three,
     gap: Spacing.two,
-    paddingBottom: BottomTabInset + Spacing.four,
+    paddingBottom: Spacing.four,
   },
   editor: {
     minHeight: 240,

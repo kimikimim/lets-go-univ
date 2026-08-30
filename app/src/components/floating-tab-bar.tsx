@@ -14,7 +14,6 @@ const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> 
   index: { active: 'home', inactive: 'home-outline' },
   admissions: { active: 'search', inactive: 'search-outline' },
   saenggibu: { active: 'document-text', inactive: 'document-text-outline' },
-  essay: { active: 'document', inactive: 'document-outline' },
   mymenu: { active: 'person', inactive: 'person-outline' },
 };
 
