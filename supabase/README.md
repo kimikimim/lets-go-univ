@@ -1,11 +1,19 @@
 # Supabase backend
 
+## Live project
+
+- Project ref: `kjskbulfngzxqcouuyev` (org `kimikimim's Org`, region `ap-northeast-2`)
+- URL / publishable key: `app/.env` (not committed — see `app/.env.example`)
+- Auth providers (Kakao OAuth, phone/email OTP) are **not yet configured** in
+  the dashboard — the app's login screen won't complete real sign-in until
+  those are turned on under Authentication → Providers.
+
 ## Migrations
 
 Apply in order against a project with the `vector` extension available:
 
 ```bash
-supabase link --project-ref <your-project-ref>
+supabase link --project-ref kjskbulfngzxqcouuyev
 supabase db push
 ```
 
@@ -13,7 +21,11 @@ supabase db push
 student-owned table to `auth.uid()`; catalog tables (`universities`,
 `admission_tracks`, `admission_schedule`, `saenggibu_sources`) are
 authenticated-read, service-role-write only. `0003_match_saenggibu_sources.sql`
-— the pgvector similarity RPC the RAG edge function calls.
+— the pgvector similarity RPC the RAG edge function calls. `0004_security_advisor_fixes.sql`
+and `0005_perf_and_rls_optimizations.sql` — fixes from Supabase's own
+security/performance advisors (pinned function `search_path`, `vector`
+extension moved out of `public`, RLS policies using `(select auth.uid())` to
+avoid per-row re-evaluation, covering indexes on foreign keys).
 
 ## Curating `saenggibu_sources`
 

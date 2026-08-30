@@ -16,6 +16,9 @@ cloudflare/
 
 ## Getting started
 
+A live Supabase project (`kjskbulfngzxqcouuyev`) already exists with the
+schema/RLS applied — see [supabase/README.md](supabase/README.md).
+
 ```bash
 cd app
 cp .env.example .env   # fill in EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY
@@ -24,7 +27,8 @@ npm run ios             # or npm run android / npm run web
 ```
 
 The Supabase project needs the Kakao, phone (SMS), and email OTP providers
-enabled in Auth settings — this app has no password field anywhere. See
+enabled in Auth settings — this app has no password field anywhere, and
+sign-in won't complete until those are turned on. See
 [supabase/README.md](supabase/README.md) for migrations, RAG corpus curation,
 and edge function deployment.
 
