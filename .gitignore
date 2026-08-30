@@ -1,6 +1,7 @@
-# Cloudflare Workers
+# Cloudflare Workers / Pages
 cloudflare/worker/.wrangler/
 cloudflare/worker/node_modules/
+cloudflare/pages/.wrangler/
 
 # Supabase CLI local state
 supabase/.branches/
