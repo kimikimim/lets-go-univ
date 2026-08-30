@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,12 +10,17 @@ import { BottomTabInset, Spacing } from '@/constants/theme';
 import { mockNews } from '@/data/mock';
 import { useAdmissionSchedule } from '@/hooks/use-admission-schedule';
 import { useProfile } from '@/hooks/use-profile';
+import { useTargetPreferences } from '@/hooks/use-target-preferences';
+import { useUniversities } from '@/hooks/use-universities';
+import { estimateHakbeon } from '@/lib/hakbeon';
 import { supabase } from '@/lib/supabase';
 import type { SearchHistoryEntry } from '@/types/database';
 
 export default function HomeScreen() {
   const { profile } = useProfile();
   const { events: upcomingEvents } = useAdmissionSchedule();
+  const { preferences } = useTargetPreferences();
+  const { universities } = useUniversities();
   const [recentSearches, setRecentSearches] = useState<SearchHistoryEntry[]>([]);
 
   useEffect(() => {
@@ -29,13 +34,30 @@ export default function HomeScreen() {
       .then(({ data }) => setRecentSearches(data ?? []));
   }, [profile]);
 
-  const greetingName = profile?.display_name ?? '학생';
+  const name = profile?.display_name ?? '학생';
+
+  // Picks one of the student's saved target schools at random each time the
+  // home screen loads — only when they've actually set one, and a matching
+  // university row can be found.
+  const targetSchoolName = useMemo(() => {
+    if (preferences.length === 0) return null;
+    const candidates = preferences
+      .map((p) => universities.find((u) => u.id === p.university_id)?.name_kr)
+      .filter((name): name is string => !!name);
+    if (candidates.length === 0) return null;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }, [preferences, universities]);
+
+  const greeting =
+    targetSchoolName && profile
+      ? `${targetSchoolName} ${estimateHakbeon(profile.birth_date)}학번 ${name}님 반가워요`
+      : `${name}님 반가워요`;
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <ThemedText type="subtitle">{greetingName}님 반가워요</ThemedText>
+          <ThemedText type="subtitle">{greeting}</ThemedText>
 
           <ThemedText type="smallBold" style={styles.sectionTitle}>
             입시 일정
