@@ -8,12 +8,18 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useProfile } from '@/hooks/use-profile';
 
+// Demo-only bypass so 생기부/마이메뉴 can be previewed without a working
+// Kakao/OTP provider set up in Supabase yet. Never set this in a real
+// deployment — it skips the actual login requirement.
+const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === 'true';
+
 /** Gates a single tab's content behind login, instead of the whole app —
  *  홈/모집요강 stay browsable without an account. */
 export function LoginRequired({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { session, needsOnboarding, loading } = useProfile();
 
+  if (DEMO_MODE) return children;
   if (loading) return null;
   if (session && needsOnboarding) return <Redirect href="/onboarding/age-gate" />;
 
