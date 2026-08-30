@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/card';
+import { LoginRequired } from '@/components/login-required';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -17,6 +18,14 @@ import { signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
 export default function MyMenuScreen() {
+  return (
+    <LoginRequired>
+      <MyMenuContent />
+    </LoginRequired>
+  );
+}
+
+function MyMenuContent() {
   const theme = useTheme();
   const router = useRouter();
   const { profile } = useProfile();

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/card';
 import { CategoryTag } from '@/components/category-tag';
 import { EmptyState } from '@/components/empty-state';
+import { LoginRequired } from '@/components/login-required';
 import { PrimaryButton } from '@/components/primary-button';
 import { SourceCitation } from '@/components/source-citation';
 import { TextField } from '@/components/text-field';
@@ -16,6 +17,14 @@ import { useProfile } from '@/hooks/use-profile';
 import { supabase } from '@/lib/supabase';
 
 export default function SaenggibuScreen() {
+  return (
+    <LoginRequired>
+      <SaenggibuContent />
+    </LoginRequired>
+  );
+}
+
+function SaenggibuContent() {
   const { profile } = useProfile();
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +8,7 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useProfile } from '@/hooks/use-profile';
 import {
   sendEmailOtp,
   sendPhoneOtp,
@@ -18,11 +20,26 @@ import {
 type Mode = 'select' | 'phone' | 'phone-code' | 'email' | 'email-code';
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const { session, needsOnboarding } = useProfile();
   const [mode, setMode] = useState<Mode>('select');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Login is pushed on top of whichever tab asked for it — once a session
+  // shows up, leave (age-gate for a brand new account, otherwise just back).
+  useEffect(() => {
+    if (!session) return;
+    if (needsOnboarding) {
+      router.replace('/onboarding/age-gate');
+    } else if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  }, [session, needsOnboarding, router]);
 
   async function withLoading(fn: () => Promise<unknown>) {
     setLoading(true);

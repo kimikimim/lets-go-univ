@@ -1,21 +1,11 @@
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 
 import { FloatingTabBar } from '@/components/floating-tab-bar';
-import { useProfile } from '@/hooks/use-profile';
 
-// Demo-only bypass so the tabs can be previewed without a live Supabase
-// project. Never set EXPO_PUBLIC_DEMO_MODE in a real deployment.
-const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === 'true';
-
+// 홈/모집요강 are open to everyone. 생기부/마이메뉴 need an account — each of
+// those screens gates itself with <LoginRequired>, so browsing the other two
+// tabs never forces a login.
 export default function TabsLayout() {
-  const { session, needsOnboarding, loading } = useProfile();
-
-  if (!DEMO_MODE) {
-    if (loading) return null;
-    if (!session) return <Redirect href="/auth/login" />;
-    if (needsOnboarding) return <Redirect href="/onboarding/age-gate" />;
-  }
-
   return (
     <Tabs tabBar={(props) => <FloatingTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: '홈' }} />
