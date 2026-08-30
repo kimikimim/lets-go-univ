@@ -8,3 +8,6 @@ supabase/.branches/
 supabase/.temp/
 
 .DS_Store
+
+# Raw design drop-offs, not build assets
+/image/
