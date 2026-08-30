@@ -1,0 +1,9 @@
+# Cloudflare Workers
+cloudflare/worker/.wrangler/
+cloudflare/worker/node_modules/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
+
+.DS_Store
