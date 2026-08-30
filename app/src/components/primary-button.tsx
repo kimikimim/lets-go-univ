@@ -7,12 +7,19 @@ import { useTheme } from '@/hooks/use-theme';
 export type PrimaryButtonProps = PressableProps & {
   label: string;
   loading?: boolean;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'dark';
 };
+
+const VARIANT_COLORS = {
+  primary: { bg: 'primary', fg: 'onPrimary' },
+  secondary: { bg: 'backgroundElement', fg: 'text' },
+  dark: { bg: 'text', fg: 'background' },
+} as const;
 
 export function PrimaryButton({ label, loading, variant = 'primary', disabled, style, ...rest }: PrimaryButtonProps) {
   const theme = useTheme();
   const isDisabled = disabled || loading;
+  const colors = VARIANT_COLORS[variant];
 
   return (
     <Pressable
@@ -22,18 +29,16 @@ export function PrimaryButton({ label, loading, variant = 'primary', disabled, s
       style={[
         styles.base,
         {
-          backgroundColor: variant === 'primary' ? theme.primary : theme.backgroundElement,
+          backgroundColor: theme[colors.bg],
           opacity: isDisabled ? 0.6 : 1,
         },
         style as object,
       ]}
       {...rest}>
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? theme.onPrimary : theme.text} />
+        <ActivityIndicator color={theme[colors.fg]} />
       ) : (
-        <ThemedText
-          type="smallBold"
-          style={{ color: variant === 'primary' ? theme.onPrimary : theme.text }}>
+        <ThemedText type="smallBold" style={{ color: theme[colors.fg] }}>
           {label}
         </ThemedText>
       )}
