@@ -6,4 +6,17 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  --color-background: #ffffff;
+  --color-primary: #3366ff;
+
+  /* Fixed light theme — don't let the browser render form controls/scrollbars
+     in dark mode just because the OS/browser prefers it. */
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  background-color: var(--color-background);
 }
