@@ -26,6 +26,7 @@ export type University = {
   region: string | null;
   type: string | null;
   address: string | null;
+  admissions_url: string | null;
   created_at: string;
 };
 

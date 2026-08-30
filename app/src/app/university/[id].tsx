@@ -4,9 +4,11 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-nati
 
 import { Card } from '@/components/card';
 import { Chip } from '@/components/chip';
+import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { openExternalUrl } from '@/lib/open-url';
 import { supabase } from '@/lib/supabase';
 import type { AdmissionScheduleEvent, AdmissionTrack, University } from '@/types/database';
 
@@ -54,6 +56,14 @@ export default function UniversityDetailScreen() {
         <ThemedText type="small" themeColor="textSecondary">
           {university.region} · {university.type}
         </ThemedText>
+
+        {university.admissions_url ? (
+          <PrimaryButton
+            label="입학처 바로가기"
+            variant="secondary"
+            onPress={() => openExternalUrl(university.admissions_url!)}
+          />
+        ) : null}
 
         <ThemedText type="smallBold" style={styles.sectionTitle}>
           전형
