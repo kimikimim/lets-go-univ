@@ -3,7 +3,7 @@ import { FlatList, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/card';
-import { Chip } from '@/components/chip';
+import { CategoryTag } from '@/components/category-tag';
 import { EmptyState } from '@/components/empty-state';
 import { PrimaryButton } from '@/components/primary-button';
 import { SourceCitation } from '@/components/source-citation';
@@ -63,13 +63,13 @@ export default function SaenggibuScreen() {
           }
           renderItem={({ item }) => (
             <Card>
-              <ThemedView style={styles.cardHeader}>
-                <ThemedText type="smallBold" style={styles.title}>
-                  {item.title}
-                </ThemedText>
-                <Chip label={item.category} />
-              </ThemedView>
-              <ThemedText type="small">{item.summary}</ThemedText>
+              <CategoryTag category={item.category} />
+              <ThemedText type="smallBold" style={styles.title}>
+                {item.title}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.summary}>
+                {item.summary}
+              </ThemedText>
               <SourceCitation label={item.sourceLabel} />
             </Card>
           )}
@@ -91,12 +91,11 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingBottom: BottomTabInset + Spacing.four,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
   title: {
-    flex: 1,
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  summary: {
+    lineHeight: 21,
   },
 });

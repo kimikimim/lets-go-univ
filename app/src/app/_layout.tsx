@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,12 +10,14 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { loading } = useProfile();
+  const [iconsLoaded] = useFonts(Ionicons.font);
+  const ready = !loading && iconsLoaded;
 
   useEffect(() => {
-    if (!loading) SplashScreen.hideAsync();
-  }, [loading]);
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (loading) return null;
+  if (!ready) return null;
 
   return (
     <ThemeProvider value={DefaultTheme}>

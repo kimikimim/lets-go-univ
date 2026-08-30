@@ -72,5 +72,5 @@ export const Spacing = {
 } as const;
 
 // Clears the floating pill tab bar (its own height + bottom margin + safe area).
-export const BottomTabInset = Platform.select({ ios: 110, android: 120 }) ?? 0;
+export const BottomTabInset = Platform.select({ ios: 134, android: 144 }) ?? 0;
 export const MaxContentWidth = 800;

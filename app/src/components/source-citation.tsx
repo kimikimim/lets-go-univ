@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,11 +10,9 @@ import { useTheme } from '@/hooks/use-theme';
 export function SourceCitation({ label }: { label: string }) {
   const theme = useTheme();
   return (
-    <View style={[styles.row, { borderTopColor: theme.border }]}>
-      <ThemedText type="small" themeColor="textSecondary">
-        출처
-      </ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.label}>
+    <View style={[styles.row, { backgroundColor: theme.background, borderColor: theme.border }]}>
+      <Ionicons name="document-text-outline" size={14} color={theme.textSecondary} />
+      <ThemedText type="small" themeColor="textSecondary" style={styles.label} numberOfLines={2}>
         {label}
       </ThemedText>
     </View>
@@ -23,9 +22,12 @@ export function SourceCitation({ label }: { label: string }) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.one,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: Spacing.two,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
     marginTop: Spacing.one,
   },
   label: {

@@ -50,7 +50,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                   ]}>
                   <Ionicons
                     name={focused ? TAB_ICONS[route.name].active : TAB_ICONS[route.name].inactive}
-                    size={18}
+                    size={26}
                     color={focused ? theme.primary : theme.textSecondary}
                   />
                 </View>
@@ -69,13 +69,13 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   );
 }
 
-const BAR_HEIGHT = 64;
+const BAR_HEIGHT = 88;
 
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    left: Spacing.four,
-    right: Spacing.four,
+    left: Spacing.two,
+    right: Spacing.two,
     alignItems: 'center',
   },
   blur: {
@@ -104,17 +104,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
+    gap: 4,
   },
   iconBubble: {
-    width: 34,
-    height: 26,
-    borderRadius: 13,
+    width: 56,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    fontSize: 10,
-    lineHeight: 12,
+    fontSize: 12,
+    lineHeight: 14,
   },
 });
