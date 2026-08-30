@@ -112,16 +112,11 @@ export default function LoginScreen() {
               />
               <PrimaryButton
                 label="로그인"
-                variant="dark"
                 loading={loading}
                 onPress={handleSubmitIdentifier}
               />
 
               <KakaoButton loading={loading} onPress={() => withLoading(signInWithKakao)} />
-
-              <ThemedText type="small" themeColor="textSecondary" style={styles.ageNote}>
-                만 14세 이상만 가입할 수 있어요.
-              </ThemedText>
             </ThemedView>
           ) : (
             <ThemedView style={styles.form}>
@@ -134,15 +129,12 @@ export default function LoginScreen() {
                 onSubmitEditing={handleVerifyCode}
                 returnKeyType="done"
               />
-              <PrimaryButton label="확인" variant="dark" loading={loading} onPress={handleVerifyCode} />
+              <PrimaryButton label="확인" loading={loading} onPress={handleVerifyCode} />
               <PrimaryButton label="뒤로" variant="secondary" onPress={() => setMode('input')} />
             </ThemedView>
           )}
 
-          <Pressable
-            onPress={() =>
-              Alert.alert('회원가입', '전화번호나 이메일 인증만으로 가입과 로그인이 함께 진행돼요.')
-            }>
+          <Pressable onPress={() => router.push('/webview/terms')}>
             <ThemedText type="small" themeColor="textSecondary" style={styles.footerLink}>
               회원가입하기
             </ThemedText>
@@ -170,10 +162,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: Spacing.two,
-  },
-  ageNote: {
-    textAlign: 'center',
-    marginTop: Spacing.two,
   },
   kakaoButton: {
     height: 52,
